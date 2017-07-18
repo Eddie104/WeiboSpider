@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import helper
-from HTMLParser import HTMLParser
+# from HTMLParser import HTMLParser
 import re
 
 # 	print HTMLParser().unescape('''
@@ -29,22 +29,27 @@ cookies = {
 }
 
 def fetchUserInfo(url):
-	print(url)
+	pq = helper.get(url)
+
+def fetchUserPageID(url):
+	global cookies
+	pq = helper.get(url, cookies)
+	# $CONFIG['page_id']='1003065025404692
+	# 找到page_id
+	pattern = re.compile('\$CONFIG\[\'page_id\'\]=\'\d+')
+	match = pattern.search(pq.text())
+	if match:
+		page_id = match.group().replace('$CONFIG[\'page_id\']=\'', '')
+		fetchUserInfo('http://weibo.com/p/%s/info?mod=pedit_more' % page_id)
 
 if __name__ == '__main__':
-	# pattern = re.compile('\\n\\thref=\\"http:.*weibo.com.*')
-	pattern = re.compile('\\n\\thref=\\"http')
+	pattern = re.compile('href=\\\\"http:\\\\/\\\\/weibo\.com\\\\/[\w\\\\/]+\?refer_flag=\d+_\\\\" title')
 	# 新浪微博上只有50页
-	for page in xrange(1, 51):
-		pq = helper.get('http://s.weibo.com/weibo/%25E5%2581%25A5%25E8%25BA%25AB%25E6%2589%2593%25E5%258D%25A1&Refer=focus_lx_STopic_box&page=' + str(page), cookies)
-		print(pq.text())
-		# hrefArr = pattern.findall(pq.text());
-		# print('aaaaaaaaaaaaa')
-		# print(len(hrefArr))
-		# print('aaaaaaaaaaaaa')
-		# hrefArr = [href.replace('\n\t', '').split(' ')[0].split('"')[1].replace('\\', '') for href in hrefArr]
-		# # print(hrefArr[0])
-		# for href in hrefArr:
-		# 	fetchUserInfo(href)		
+	for page in range(1, 51):
+		pq = helper.get('http://s.weibo.com/weibo/%25E5%2581%25A5%25E8%25BA%25AB%25E6%2589%2593%25E5%258D%25A1?topnav=1&wvr=6&topsug=1&page=' + str(page), cookies)
+		hrefArr = pattern.findall(pq.text());
+		hrefArr = [href.split(' ')[0].split('"')[1].replace('\\', '') for href in hrefArr]
+		for href in hrefArr:
+			fetchUserPageID(href)
+			break	
 		break
-	
