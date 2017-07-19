@@ -27,6 +27,16 @@ def writeFile(content, path):
 		print(e)
 		return False
 
+def readFile(path):
+	try:
+		f = open(path, 'r')
+		r = f.read()
+		f.close()
+		return r
+	except Exception as e:
+		print(e)
+		return None
+
 # 开始下载图片
 def downloadImg(url, imgPath):
 	if url != None:
@@ -45,8 +55,10 @@ def downloadImg(url, imgPath):
 						f.write(chunk)
 						f.flush()
 
-def get(url, cookies = {}, myHeaders = None):
-	print('get url => ' + url)
+def get(url, cookies = {}, myHeaders = None, sleep = 0):
+	if sleep > 0:
+		 time.sleep(sleep)
+	print('[%s] get url => %s' % (now(), url))
 	global headers
 	response = requests.get(url, headers = myHeaders or headers, cookies = cookies)
 	if response.status_code == 200:
