@@ -9,23 +9,20 @@ import re, os
 # ''')
 
 cookies = {
-	'UOR': 'lbsyun.baidu.com,widget.weibo.com,baike.baidu.com',
-	'SINAGLOBAL': '883244077874.0991.1498816394309',
-	'login_sid_t': '6ff899077764fd3673b45da96a1fa25b',
-	'TC-Ugrow-G0': '5e22903358df63c5e3fd2c757419b456',
-	'TC-V5-G0': 'ffc89a27ffa5c92ffdaf08972449df02',
-	'WBStorage': 'cd7f674a73035f73|undefined',
-	'crossidccode': 'CODE-tc-1DxGT6-23s2EC-udJoDVJ2cE2mKEu2285a4',
-	'SSOLoginState': '1500439629',
-	'SUB': '_2A250apQdDeRhGedI6lES8S_PyDmIHXVXAYLVrDV8PUNbmtAKLVHukW9RtacosqzEmzeBX8tP5gf5vnfyEw..',
-	'SUBP': '0033WrSXqPxfM725Ws9jqgMF55529P9D9WWmQ78-.1fscFQQRXZwQogl5JpX5KzhUgL.Fo2ceKe0eK20e0-2dJLoIpB0wbH81CHF1FHFxbH8Sb-4xFHFe5tt',
-	'SUHB': '079S5bjak_zEUX',
-	'ALF': '1531975628',
+	'SINAGLOBAL': '732340237205.8751.1500389866601',
+	'SWB': 'usrmdinst_10',
+	'login_sid_t': '0a41623e45b9074735e998a24ab6cbd6',
+	'SCF': 'AmzDTI0wLJ6QmjTa5YMFoeXiluZQL9mP4oHMscT_gYMIkG6MnHg4CRSBzSv29r6qVDzAd8kX0lgRrUgXL18TPjE.',
+	'SUB': '_2A250dyagDeThGeNN7FUS8yfMyz2IHXVXBR9orDV8PUNbmtBeLUX9kW9zC-ugTQOZU0xXQPMCFYikIFpC1w..',
+	'SUBP': '0033WrSXqPxfM725Ws9jqgMF55529P9D9WWY2LqbsaLXp094T_v54Lmg5JpX5KzhUgL.Fo-0S0M0e0.7eh22dJLoI7Lyds87Mh5pehet',
+	'SUHB': '0z1QZMY5LIBY1w',
+	'ALF': '1532267119',
+	'SSOLoginState': '1500731120',
 	'wvr': '6',
+	'WBStorage': 'cd7f674a73035f73|undefined',
 	'_s_tentry': 'weibo.com',
-	'Apache': '813363762990.913.1500439595625',
-	'ULV': '1500439595635:2:1:1:813363762990.913.1500439595625:1498816394434',
-	'TC-Page-G0': '0dba63c42a7d74c1129019fa3e7e6e7c'
+	'Apache': '9878735168894.258.1500731272151',
+	'ULV': '1500731272164:2:2:2:9878735168894.258.1500731272151:1500389866611'
 }
 
 userInfoArr = []
@@ -98,14 +95,19 @@ if __name__ == '__main__':
 		csv = helper.readFile(resultPath)
 		csvRowArr = csv.split('\n')
 		for numRow in range(1, len(csvRowArr)):
-			arr = csvRowArr[numRow].split(',')
-			userInfoArr.append(UserInfo(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6], arr[7]))
+			if csvRowArr[numRow] != '':
+				arr = csvRowArr[numRow].split(',')
+				if len(arr) != 7:
+					print('wrong row => %s' % csvRowArr[numRow])
+				else:
+					userInfoArr.append(UserInfo(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6]))
 
 	# pattern = re.compile('href=\\\\"http:\\\\/\\\\/weibo\.com\\\\/[\w\\\\/]+\?refer_flag=\d+_\\\\" title')
 	pattern = re.compile('&uid=\d+&domain=\w*&')
 	# 新浪微博上只有50页
 	for page in range(1, 51):
-		pq = helper.get('http://s.weibo.com/weibo/%25E5%2581%25A5%25E8%25BA%25AB%25E6%2589%2593%25E5%258D%25A1?topnav=1&wvr=6&topsug=1&page=' + str(page), cookies, sleep = 3)
+
+		pq = helper.get('http://s.weibo.com/weibo/%25E5%2581%25A5%25E8%25BA%25AB%25E6%2589%2593%25E5%258D%25A1?topnav=1&wvr=6&b=1&page=' + str(page), cookies, sleep = 3)
 		uidAndDomainArr = pattern.findall(pq.text());
 		uidAndDomainArr = [{'uid': s.split('&')[1].replace('uid=', ''), 'domain': s.split('&')[2].replace('domain=', '')} for s in uidAndDomainArr]
 		for uidAndDoamin in uidAndDomainArr:
@@ -119,6 +121,6 @@ if __name__ == '__main__':
 				# http://weibo.com/miniivy?refer_flag=1001030103_&is_hot=1
 				# http://weibo.com/u/5025404692?refer_flag=1001030103_&is_hot=1
 				fetchUserPageID('http://weibo.com/u/%s?refer_flag=1001030103_&is_hot=1' % uidAndDoamin.get('uid') if uidAndDoamin.get('domain') == '' else 'http://weibo.com/%s?refer_flag=1001030103_&is_hot=1' % uidAndDoamin.get('domain'), uidAndDoamin.get('uid'))
-		break
+		# break
 	print('Done!')
 	# fetchUserInfo('http://weibo.com/p/1005051802025651/info?mod=pedit_more', 'aaa')
